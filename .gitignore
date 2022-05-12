@@ -1,4 +1,10 @@
-DERGO_Server/Dependencies/
+DERGO_Server/Dependencies/*
+!DERGO_Server/Dependencies/Ogre
+DERGO_Server/Dependencies/Ogre/*
+!DERGO_Server/Dependencies/Ogre/Components
+!DERGO_Server/Dependencies/Ogre/OgreMain
+CMakeLists.txt
+
 DERGO_Server/build/
 DERGO_Server/buildQt/
 DERGO_Server/bin/Debug
