@@ -468,10 +468,10 @@ namespace Ogre
             mExportedMeshes.find( mesh ) == mExportedMeshes.end() &&
             mListener->exportMesh( mesh ) )
         {
-            FileSystemLayer::createDirectory( mCurrentExportFolder + "/v2/" );
+            //FileSystemLayer::createDirectory( mCurrentExportFolder + "/v2/" );
 
             Ogre::MeshSerializer meshSerializer( mRoot->getRenderSystem()->getVaoManager() );
-            meshSerializer.exportMesh( mesh, mCurrentExportFolder + "/v2/" + mesh->getName(),
+            meshSerializer.exportMesh( mesh, mCurrentExportFolder + "/" + item->getName() + ".mesh",
                                        MESH_VERSION_LATEST );
             mExportedMeshes.insert( mesh );
         }
@@ -1176,7 +1176,7 @@ namespace Ogre
     void SceneFormatExporter::exportSceneToFile( const String &folderPath, uint32 exportFlags )
     {
         mCurrentExportFolder = folderPath;
-        const String textureFolder = folderPath + "/textures/";
+        const String textureFolder = folderPath; // + "/textures/";
         FileSystemLayer::createDirectory( mCurrentExportFolder );
         if( exportFlags & (SceneFlags::TexturesOitd|SceneFlags::TexturesOriginal)  )
             FileSystemLayer::createDirectory( textureFolder );
@@ -1186,11 +1186,13 @@ namespace Ogre
             String jsonString;
             _exportScene( jsonString, savedTextures, exportFlags );
 
+            /* we don't need the scene json
             const String scenePath = folderPath + "/scene.json";
             std::ofstream file( scenePath.c_str(), std::ios::binary | std::ios::out );
             if( file.is_open() )
                 file.write( jsonString.c_str(), jsonString.size() );
             file.close();
+            */
         }
 
         if( exportFlags & SceneFlags::Materials )

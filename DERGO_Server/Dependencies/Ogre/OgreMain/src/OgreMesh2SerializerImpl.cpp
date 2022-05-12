@@ -48,6 +48,8 @@ THE SOFTWARE.
 #include "Vao/OgreIndexBufferPacked.h"
 #include "Vao/OgreAsyncTicket.h"
 
+#include "OgreHlms.h"
+
 #if OGRE_COMPILER == OGRE_COMPILER_MSVC
 // Disable conversion warnings, we do a lot of them, intentionally
 #   pragma warning (disable : 4267)
@@ -265,8 +267,29 @@ namespace Ogre {
         // Header
         writeChunkHeader(M_SUBMESH, calcSubMeshSize(s, lodVertexTable));
 
-        // char* materialName
-        writeString(s->getMaterialName());
+        // try to write the actual material name, not just the id
+        Ogre::HlmsManager *hlmsManager = Ogre::Root::getSingleton().getHlmsManager();
+        Ogre::Hlms *hlms = hlmsManager->getHlms(Ogre::HLMS_PBS);
+        assert(hlms);
+        Ogre::HlmsDatablock* db = hlms->getDatablock(s->getMaterialName());
+        if (db)
+        {
+          const Ogre::String* fullMatName = db->getNameStr();
+          if (fullMatName)
+          {
+            writeString(*fullMatName);
+          }
+          else
+          {
+            // no full material name
+            assert(false);
+          }
+        }
+        else
+        {
+          // char* materialName
+          writeString(s->getMaterialName());
+        }
 
         const uint8 blendIndexToBoneIndexCount = s->mBlendIndexToBoneIndexMap.size();
         writeData( &blendIndexToBoneIndexCount, 1, 1 );
