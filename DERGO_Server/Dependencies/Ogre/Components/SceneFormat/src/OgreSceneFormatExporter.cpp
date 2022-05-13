@@ -940,7 +940,7 @@ namespace Ogre
     }
     //-----------------------------------------------------------------------------------
     void SceneFormatExporter::_exportScene( String &outJson, set<String>::type &savedTextures,
-                                            uint32 exportFlags )
+                                            uint32 exportFlags, Ogre::String* MatFileName )
     {
         mNodeToIdxMap.clear();
         mExportedMeshes.clear();
@@ -1044,6 +1044,11 @@ namespace Ogre
                     {
                         if( firstObject )
                         {
+                            if ( MatFileName && item )
+                            {
+                              // Use the name of the first item for the material file.
+                              *MatFileName = item->getName();
+                            }
                             outJson += "\n\t\t{";
                             firstObject = false;
                         }
@@ -1181,10 +1186,11 @@ namespace Ogre
         if( exportFlags & (SceneFlags::TexturesOitd|SceneFlags::TexturesOriginal)  )
             FileSystemLayer::createDirectory( textureFolder );
 
+        Ogre::String MatFileName;
         set<String>::type savedTextures;
         {
             String jsonString;
-            _exportScene( jsonString, savedTextures, exportFlags );
+            _exportScene( jsonString, savedTextures, exportFlags, &MatFileName );
 
             /* we don't need the scene json
             const String scenePath = folderPath + "/scene.json";
@@ -1202,8 +1208,8 @@ namespace Ogre
             {
                 if( hlmsManager->getHlms( static_cast<HlmsTypes>( i ) ) )
                 {
-                    const String materialPath = folderPath + "/material" +
-                                                StringConverter::toString( i ) + ".material.json";
+                    const String materialPath = folderPath + "/" + MatFileName +
+                                                (i > 1 ? StringConverter::toString( i ) : "") + ".material.json";
                     hlmsManager->saveMaterials( static_cast<HlmsTypes>( i ), materialPath.c_str(),
                                                 mListener, BLANKSTRING );
                 }

@@ -118,7 +118,7 @@ namespace Ogre
             Note that excluding scene nodes can cause issues later during import.
         */
         void _exportScene( String &outJson, set<String>::type &savedTextures,
-                           uint32 exportFlags=~0u );
+                           uint32 exportFlags=~0u, Ogre::String* MatFileName = nullptr);
 
     public:
         SceneFormatExporter( Root *root, SceneManager *sceneManager,
