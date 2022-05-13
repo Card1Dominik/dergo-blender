@@ -19,3 +19,5 @@ DERGO_Server/bin/Data/Materials/HDR
 DERGO_Server/bin/Data/Materials/LocalCubemaps
 DERGO_Server/bin/Data/DebugPack.zip
 DERGO_Server/bin/Data/Resources.cfg
+DERGO_Client/.vscode/
+DERGO_Client/__pycache__/

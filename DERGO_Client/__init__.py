@@ -10,12 +10,15 @@ from .mesh_export import MeshExport
 from .network import  *
 from .engine import *
 from .export_to_file import *
+from .instant_radiosity import *
+from .mesh_export import *
+from .properties import *
 
 bl_info = {
 	 "name": "DERGO3D",
 	 "author": "Matías N. Goldberg",
 	 "version": (2, 1),
-	 "blender": (2, 76, 0),
+	 "blender": (2, 93, 0),
 	 "category": "Render",
 	 "location": "Info header, render engine menu",
 	 "warning": "",
@@ -49,7 +52,7 @@ class DergoRenderEngine(bpy.types.RenderEngine):
 			engine.Engine.numActiveRenderEngines -= 1
 		
 	#def bake(self, scene, obj, pass_type, object_id, pixel_array, num_pixels, depth, result):
-	def bake(self, scene, obj, pass_type, pass_filter, object_id, pixel_array, num_pixels, depth, result):
+	def bake(self, depsgraph, object, pass_type, pass_filter, width, height):
 		return
 	def update_script_node(self, node):
 		return
@@ -94,7 +97,7 @@ class DergoRenderEngine(bpy.types.RenderEngine):
 		result.layers[0].passes[0].rect = blue_rect
 		self.end_result(result)
 		
-	def view_update(self, context):
+	def view_update(self, context, depsgraph):
 		if self.needsReset:
 			engine.dergo.reset()
 			self.needsReset = False
@@ -102,7 +105,7 @@ class DergoRenderEngine(bpy.types.RenderEngine):
 		engine.dergo.view_update( context )
 		return
 		
-	def view_draw(self, context):
+	def view_draw(self, context, depsgraph):
 		if ui.isInDummyMode( context ):
 			return
 
@@ -128,6 +131,69 @@ class DergoRenderEngine(bpy.types.RenderEngine):
 
 	#scene['dergo']. bpy.context.window.screen.name
 
+classes = (
+	#DergoRenderEngine,
+	#PbsTexture,
+	#TextureMapType,
+	#Engine,
+	#ExportSomeData,
+	#DergoWorldInstantRadiositySettings,
+	Dergo_PT_world_instant_radiosity,
+	#InstantRadiosity,
+	#DergoObjectInstantRadiosity,
+	Dergo_PT_empty_instant_radiosity,
+	#ExportVertex,
+	#MeshExport,
+	#FromClient,
+	#FromServer,
+	#Network,
+	#DergoWorldPccSettings,
+	Dergo_PT_world_pcc,
+	#ParallaxCorrectedCubemaps,
+	#DergoObjectParallaxCorrectedCubemaps,
+	Dergo_PT_empty_pcc,
+	Dergo_PT_empty_linked_empty,
+	#DergoSpaceViewSettings,
+	DergoSceneSettings,
+	#DergoWorldSettings,
+	#DergoObjectSettings,
+	#DergoMeshSettings,
+	#DergoLampSettings,
+	DergoMaterialSettings,
+	DergoImageSettings,
+	#DergoWorldShadowsSettings,
+	Dergo_PT_world_shadow_settings,
+	#ShadowsSettings,
+	#DergoButtonsPanel,
+	Dergo_PT_world,
+	#AsyncPreviewOperatorToggle,
+	#DummyRendererOperatorToggle,
+	DergoLamp_PT_lamp,
+	DergoLamp_PT_spot,
+	Dergo_PT_context_material,
+	Dergo_PT_material_geometry,
+	#FixMaterialTexture,
+	FixMeshTangents,
+	Dergo_PT_material_diffuse,
+	Dergo_PT_material_specular,
+	Dergo_PT_material_normal,
+	Dergo_PT_material_fresnel,
+	Dergo_PT_material_metallic,
+	#DergoDetailPanelBase,
+	Dergo_PT_material_detail0,
+	Dergo_PT_material_detail1,
+	Dergo_PT_material_detail2,
+	Dergo_PT_material_detail3,
+	Dergo_PT_material_emissive,
+	Dergo_PT_mesh,
+	#DergoTexturePanel,
+	DergoTexture_PT_context,
+	DergoTexture_PT_dergo,
+	DergoTexture_PT_preview,
+	DergoTexture_PT_image,
+	#CallbackObj,
+)
+
 #global drawHandle
 def register():
 	from . import properties
@@ -151,13 +217,15 @@ def register():
 	ui.register()
 	#ui_hdr.register()
 	export_to_file.register()
-	bpy.utils.register_module(__name__)
+
+	for cls in classes:
+		bpy.utils.register_class(cls)
 
 def unregister():
 	from . import properties
 
-	if bpy.context.scene.render.engine == "DERGO3D":
-		bpy.context.scene.render.engine = 'BLENDER_RENDER'
+	if bpy.context.scene.render.engine == 'DERGO3D':
+		bpy.context.scene.render.engine = 'BLENDER_EEVEE'
 
 	export_to_file.unregister()
 	ui.unregister()
@@ -166,4 +234,6 @@ def unregister():
 	bpy.utils.unregister_class(DergoRenderEngine)
 
 	engine.unregister()
-	bpy.utils.unregister_module(__name__)
+
+	for cls in reversed(classes):
+		bpy.utils.unregister_class(cls)

@@ -471,7 +471,7 @@ class Engine:
 		if not object.dergo.in_sync or object.is_updated:
 			# Material ID
 			dataToSend = bytearray( struct.pack( '=l', object.dergo.id ) )
-			
+			   
 			# Material name
 			asUtfBytes = object.name.encode('utf-8')
 			dataToSend.extend( struct.pack( '=I', len( asUtfBytes ) ) )
@@ -567,23 +567,29 @@ class Engine:
 		return True
 
 	def syncMaterialTextureSlots( self, mat ):
+		#TODO textures work differently in 2.8+
+		
+		#for x in mat.node_tree.nodes:
+		#	if x.type == 'TEX_IMAGE':
+
 		for i in range( PbsTexture.NumPbsTextures ):
-			slot = mat.texture_slots[i]
-			dataToSend = bytearray( struct.pack( '=lB', mat.dergo.id, i ) )
+			if mat.node_tree != None:
+				slot = mat.node_tree[i]
+				dataToSend = bytearray( struct.pack( '=lB', mat.dergo.id, i ) )
 
-			if \
-			slot != None and slot.texture != None and \
-			slot.texture.type == 'IMAGE' and slot.texture.image != None and\
-			slot.use:
-				tex = slot.texture
-				# Texture ID
-				dataToSend.extend( struct.pack( '=QB', tex.image.as_pointer(),
-										Engine.getTextureMapTypeFromTex( tex ) ) )
-			else:
-				# No texture
-				dataToSend.extend( struct.pack( '=QB', 0, 0 ) )
+				if \
+				slot != None and slot.texture != None and \
+				slot.texture.type == 'IMAGE' and slot.texture.image != None and\
+				slot.use:
+					tex = slot.texture
+					# Texture ID
+					dataToSend.extend( struct.pack( '=QB', tex.image.as_pointer(),
+											Engine.getTextureMapTypeFromTex( tex ) ) )
+				else:
+					# No texture
+					dataToSend.extend( struct.pack( '=QB', 0, 0 ) )
 
-			self.network.sendData( FromClient.MaterialTexture, dataToSend )
+				self.network.sendData( FromClient.MaterialTexture, dataToSend )
 
 	@staticmethod
 	def getTextureMapTypeFromTex( tex ):

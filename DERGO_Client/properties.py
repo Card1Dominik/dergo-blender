@@ -327,7 +327,7 @@ class DergoMeshSettings(bpy.types.PropertyGroup):
 class DergoLampSettings(bpy.types.PropertyGroup):
 	@classmethod
 	def register(cls):
-		bpy.types.Lamp.dergo = PointerProperty(
+		bpy.types.Light.dergo = PointerProperty(
 				name="Dergo Lamp Settings",
 				description="Dergo lamp settings",
 				type=cls,
@@ -373,7 +373,7 @@ class DergoLampSettings(bpy.types.PropertyGroup):
 
 	@classmethod
 	def unregister(cls):
-		del bpy.types.Lamp.dergo
+		del bpy.types.Light.dergo
 		
 class DergoMaterialSettings(bpy.types.PropertyGroup):
 	@classmethod

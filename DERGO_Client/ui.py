@@ -64,12 +64,12 @@ def draw_async_preview(self, context):
 		
 		#hasDummyWindow = False
 		#for area in bpy.context.window.screen.areas:
-		#	if area.type == 'VIEW_3D' and area.spaces[0].viewport_shade == 'RENDERED':
+		#	if area.type == 'VIEW_3D' and area.spaces[0].shading.type == 'RENDERED':
 		#		hasDummyWindow = True
 		#		break
 		hasDummyWindow = engine.dergo.numActiveRenderEngines != 0
 
-		if view.viewport_shade != 'RENDERED':
+		if view.shading.type != 'RENDERED':
 			row = layout.row()
 			row.operator("scene.dergo_toggle_dummy")
 			row.operator("scene.async_preview")
@@ -146,10 +146,10 @@ class DummyRendererOperatorToggle(bpy.types.Operator):
 		
 		spaceId = str(context.area.spaces[0])
 		if spaceId in dummyWindows[screenName]:
-			bpy.context.space_data.viewport_shade = 'SOLID'
+			bpy.context.space_data.shading.type = 'SOLID'
 			del dummyWindows[screenName][spaceId]
 		else:
-			bpy.context.space_data.viewport_shade = 'RENDERED'
+			bpy.context.space_data.shading.type = 'RENDERED'
 			dummyWindows[screenName][spaceId] = 1
 		return {'FINISHED'}
 		
@@ -762,7 +762,7 @@ class DergoTexture_PT_image(DergoTexturePanel, bpy.types.Panel):
 
 def get_panels():
 	return (
-		bpy.types.RENDER_PT_render,
+		#py.types.RENDER_PT_render,
 		bpy.types.RENDER_PT_output,
 		bpy.types.RENDER_PT_encoding,
 		bpy.types.RENDER_PT_dimensions,
@@ -776,7 +776,7 @@ def get_panels():
 		bpy.types.WORLD_PT_context_world,
 		bpy.types.DATA_PT_context_mesh,
 		bpy.types.DATA_PT_context_camera,
-		bpy.types.DATA_PT_context_lamp,
+		bpy.types.DATA_PT_context_light,
 		bpy.types.DATA_PT_texture_space,
 		bpy.types.DATA_PT_curve_texture_space,
 		bpy.types.DATA_PT_mball_texture_space,
@@ -789,7 +789,7 @@ def get_panels():
 		bpy.types.DATA_PT_lens,
 		bpy.types.DATA_PT_custom_props_mesh,
 		bpy.types.DATA_PT_custom_props_camera,
-		bpy.types.DATA_PT_custom_props_lamp,
+		bpy.types.DATA_PT_custom_props_light,
 		bpy.types.TEXTURE_PT_clouds,
 		bpy.types.TEXTURE_PT_wood,
 		bpy.types.TEXTURE_PT_marble,
@@ -802,9 +802,9 @@ def get_panels():
 		bpy.types.TEXTURE_PT_musgrave,
 		bpy.types.TEXTURE_PT_voronoi,
 		bpy.types.TEXTURE_PT_distortednoise,
-		bpy.types.TEXTURE_PT_voxeldata,
-		bpy.types.TEXTURE_PT_pointdensity,
-		bpy.types.TEXTURE_PT_pointdensity_turbulence,
+		#bpy.types.TEXTURE_PT_voxeldata,
+		#bpy.types.TEXTURE_PT_pointdensity,
+		#bpy.types.TEXTURE_PT_pointdensity_turbulence,
 		bpy.types.PARTICLE_PT_context_particles,
 		bpy.types.PARTICLE_PT_emission,
 		bpy.types.PARTICLE_PT_hair_dynamics,
@@ -826,18 +826,20 @@ def register():
 	bpy.utils.register_class(AsyncPreviewOperatorToggle)
 	bpy.utils.register_class(DummyRendererOperatorToggle)
 	bpy.utils.register_class(FixMaterialTexture)
-	bpy.app.handlers.scene_update_post.append(everyFrame)
+	bpy.app.handlers.depsgraph_update_post.append(everyFrame)
 	bpy.types.VIEW3D_HT_header.append(draw_async_preview)
 
-	for panel in get_panels():
-		panel.COMPAT_ENGINES.add('DERGO3D')
+	for panel in bpy.types.Panel.__subclasses__():
+		if hasattr(panel, 'COMPAT_ENGINES'):
+			panel.COMPAT_ENGINES.add('DERGO3D')
 		
 def unregister():
 	bpy.types.VIEW3D_HT_header.remove(draw_async_preview)
-	bpy.app.handlers.scene_update_post.remove(everyFrame)
+	bpy.app.handlers.depsgraph_update_post.remove(everyFrame)
 	bpy.utils.unregister_class(FixMaterialTexture)
 	bpy.utils.unregister_class(DummyRendererOperatorToggle)
 	bpy.utils.unregister_class(AsyncPreviewOperatorToggle)
 	
-	for panel in get_panels():
-		panel.COMPAT_ENGINES.remove('DERGO3D')
+	for panel in bpy.types.Panel.__subclasses__():
+		if hasattr(panel, 'COMPAT_ENGINES') and 'DERGO3D' in panel.COMPAT_ENGINES:
+			panel.COMPAT_ENGINES.remove('DERGO3D')
