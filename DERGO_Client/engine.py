@@ -158,7 +158,7 @@ class Engine:
 		
 		# Add and update all meshes & items
 		for object in scene.objects:
-			if not object.is_visible( scene ):
+			if not object.visible_get():
 				object.dergo.in_sync = False
 				if object.is_updated_data and object.type == 'MESH':
 					object.data.dergo.frame_sync = 0
@@ -278,7 +278,7 @@ class Engine:
 			if \
 			((not object.dergo.in_sync or object.is_updated_data) and len( object.modifiers ) > 0) or \
 			((data.dergo.frame_sync == 0 or (data.dergo.frame_sync != self.frame and object.is_updated_data)) and len( object.modifiers ) == 0):
-				exportMesh = object.to_mesh( scene, True, "PREVIEW", True, False)
+				exportMesh = object.to_mesh()
 				
 				if not data.dergo.tangent_uv_source:
 					tangentUvSource = 255
@@ -567,29 +567,30 @@ class Engine:
 		return True
 
 	def syncMaterialTextureSlots( self, mat ):
+		return
 		#TODO textures work differently in 2.8+
 		
 		#for x in mat.node_tree.nodes:
 		#	if x.type == 'TEX_IMAGE':
 
-		for i in range( PbsTexture.NumPbsTextures ):
-			if mat.node_tree != None:
-				slot = mat.node_tree[i]
-				dataToSend = bytearray( struct.pack( '=lB', mat.dergo.id, i ) )
+		#for i in range( PbsTexture.NumPbsTextures ):
+		#	if mat.node_tree != None:
+		#		slot = mat.node_tree[i]
+		#		dataToSend = bytearray( struct.pack( '=lB', mat.dergo.id, i ) )
 
-				if \
-				slot != None and slot.texture != None and \
-				slot.texture.type == 'IMAGE' and slot.texture.image != None and\
-				slot.use:
-					tex = slot.texture
+		#		if \
+		#		slot != None and slot.texture != None and \
+		#		slot.texture.type == 'IMAGE' and slot.texture.image != None and\
+		#		slot.use:
+		#			tex = slot.texture
 					# Texture ID
-					dataToSend.extend( struct.pack( '=QB', tex.image.as_pointer(),
-											Engine.getTextureMapTypeFromTex( tex ) ) )
-				else:
-					# No texture
-					dataToSend.extend( struct.pack( '=QB', 0, 0 ) )
+		#			dataToSend.extend( struct.pack( '=QB', tex.image.as_pointer(),
+		#									Engine.getTextureMapTypeFromTex( tex ) ) )
+		#		else:
+		#			# No texture
+		#			dataToSend.extend( struct.pack( '=QB', 0, 0 ) )
 
-				self.network.sendData( FromClient.MaterialTexture, dataToSend )
+		#		self.network.sendData( FromClient.MaterialTexture, dataToSend )
 
 	@staticmethod
 	def getTextureMapTypeFromTex( tex ):

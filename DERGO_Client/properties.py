@@ -114,8 +114,8 @@ class DergoSpaceViewSettings(bpy.types.PropertyGroup):
 
 	@classmethod
 	def unregister(drg):
-		#del bpy.types.SpaceView3D.dergo
-		return
+		if hasattr(bpy.types.SpaceView3D, 'dergo'):
+			del bpy.types.SpaceView3D.dergo
 
 class DergoSceneSettings(bpy.types.PropertyGroup):
 	@classmethod

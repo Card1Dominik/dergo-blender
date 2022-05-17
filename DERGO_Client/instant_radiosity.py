@@ -119,7 +119,8 @@ class DergoWorldInstantRadiositySettings(bpy.types.PropertyGroup):
 
 	@classmethod
 	def unregister(cls):
-		del bpy.types.World.dergo.instant_radiosity
+		if hasattr(bpy.types.World.dergo, 'instant_radiosity'):
+			del bpy.types.World.dergo.instant_radiosity
 
 class Dergo_PT_world_instant_radiosity(DergoButtonsPanel, bpy.types.Panel):
 	bl_label = "Instant Radiosity (GI)"

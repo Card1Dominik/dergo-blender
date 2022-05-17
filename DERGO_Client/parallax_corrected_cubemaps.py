@@ -37,7 +37,8 @@ class DergoWorldPccSettings(bpy.types.PropertyGroup):
 
 	@classmethod
 	def unregister(cls):
-		del bpy.types.World.dergo.pcc
+		if hasattr(bpy.types.World.dergo, 'pcc'):
+			del bpy.types.World.dergo.pcc
 
 class Dergo_PT_world_pcc(DergoButtonsPanel, bpy.types.Panel):
 	bl_label = "Parallax Correctec Cubemaps"

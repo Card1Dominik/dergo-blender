@@ -103,7 +103,8 @@ class DergoWorldShadowsSettings(bpy.types.PropertyGroup):
 
 	@classmethod
 	def unregister(cls):
-		del bpy.types.World.dergo.shadows
+		if hasattr(bpy.types.World.dergo, 'shadows'):
+			del bpy.types.World.dergo.shadows
 
 class Dergo_PT_world_shadow_settings(DergoButtonsPanel, bpy.types.Panel):
 	bl_label = "Shadows Settings"
